@@ -14,13 +14,468 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      consents: {
+        Row: {
+          accepted_at: string
+          terms_version: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          terms_version?: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          terms_version?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      household_members: {
+        Row: {
+          created_at: string
+          household_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          household_id: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          household_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "household_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          created_at: string
+          id: string
+          invite_code: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invite_code?: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invite_code?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "households_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          payload: Json | null
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission_items: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          mission_id: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          mission_id: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          mission_id?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_items_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      missions: {
+        Row: {
+          category: string
+          created_at: string
+          deadline: string | null
+          description: string
+          household_id: string | null
+          id: string
+          notes: string
+          priority: string
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          household_id?: string | null
+          id?: string
+          notes?: string
+          priority?: string
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          household_id?: string | null
+          id?: string
+          notes?: string
+          priority?: string
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "missions_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "missions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          appearance: string
+          areas: string[]
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          language: string
+          notification_prefs: Json
+          onboarding_completed: boolean
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          appearance?: string
+          areas?: string[]
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          language?: string
+          notification_prefs?: Json
+          onboarding_completed?: boolean
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          appearance?: string
+          areas?: string[]
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          language?: string
+          notification_prefs?: Json
+          onboarding_completed?: boolean
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          plan: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          plan?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          plan?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          category: string
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          description: string
+          due_date: string | null
+          due_time: string | null
+          household_id: string | null
+          id: string
+          mission_id: string | null
+          priority: string
+          reminder_at: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          due_time?: string | null
+          household_id?: string | null
+          id?: string
+          mission_id?: string | null
+          priority?: string
+          reminder_at?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          due_time?: string | null
+          household_id?: string | null
+          id?: string
+          mission_id?: string | null
+          priority?: string
+          reminder_at?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_access_mission: { Args: { _mission: string }; Returns: boolean }
+      has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
+      is_household_member: { Args: { _household: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
