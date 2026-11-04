@@ -75,6 +75,12 @@ export const PLANS: {
 ];
 
 export function planLimits(plan: PlanId) {
-  const p = PLANS.find((x) => x.id === plan) ?? PLANS[0];
-  return { missionLimit: p.missionLimit, aiDaily: p.aiDaily, name: p.name };
+  const found = PLANS.find((x) => x.id === plan);
+  if (found) return { missionLimit: found.missionLimit, aiDaily: found.aiDaily, name: found.name };
+  const fallback = PLANS[0];
+  return {
+    missionLimit: fallback?.missionLimit ?? 3,
+    aiDaily: fallback?.aiDaily ?? 0,
+    name: fallback?.name ?? "Free",
+  };
 }

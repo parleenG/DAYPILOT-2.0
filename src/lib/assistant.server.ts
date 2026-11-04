@@ -74,26 +74,26 @@ export async function runAssistant(input: {
 function normalizeSuggestions(parsed: { tasks?: unknown; mission?: unknown }): AssistantSuggestion {
   const tasks = Array.isArray(parsed.tasks)
     ? parsed.tasks
-        .filter((t): t is Record<string, unknown> => !!t && typeof t === "object" && typeof (t as { title?: unknown }).title === "string")
+        .filter((t): t is Record<string, unknown> => !!t && typeof t === "object" && typeof t["title"] === "string")
         .slice(0, 8)
         .map((t) => ({
-          title: String(t.title).slice(0, 200),
-          due_date: typeof t.due_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(t.due_date) ? t.due_date : null,
-          priority: t.priority === "low" || t.priority === "high" ? t.priority : "medium",
-          category: typeof t.category === "string" && t.category ? t.category.slice(0, 40) : "personal",
+          title: String(t["title"]).slice(0, 200),
+          due_date: typeof t["due_date"] === "string" && /^\d{4}-\d{2}-\d{2}$/.test(t["due_date"]) ? t["due_date"] : null,
+          priority: t["priority"] === "low" || t["priority"] === "high" ? t["priority"] : "medium",
+          category: typeof t["category"] === "string" && t["category"] ? t["category"].slice(0, 40) : "personal",
         }))
     : [];
 
   let mission: AssistantSuggestion["mission"] = null;
   const m = parsed.mission;
-  if (m && typeof m === "object" && typeof (m as { title?: unknown }).title === "string") {
+  if (m && typeof m === "object" && typeof (m as Record<string, unknown>)["title"] === "string") {
     const mm = m as Record<string, unknown>;
     mission = {
-      title: String(mm.title).slice(0, 160),
-      description: typeof mm.description === "string" ? mm.description.slice(0, 600) : "",
-      deadline: typeof mm.deadline === "string" && /^\d{4}-\d{2}-\d{2}$/.test(mm.deadline) ? mm.deadline : null,
-      checklist: Array.isArray(mm.checklist)
-        ? mm.checklist.filter((c) => typeof c === "string" && c.trim()).slice(0, 12).map((c) => c.slice(0, 160))
+      title: String(mm["title"]).slice(0, 160),
+      description: typeof mm["description"] === "string" ? mm["description"].slice(0, 600) : "",
+      deadline: typeof mm["deadline"] === "string" && /^\d{4}-\d{2}-\d{2}$/.test(mm["deadline"]) ? mm["deadline"] : null,
+      checklist: Array.isArray(mm["checklist"])
+        ? mm["checklist"].filter((c): c is string => typeof c === "string" && c.trim().length > 0).slice(0, 12).map((c) => c.slice(0, 160))
         : [],
     };
   }
