@@ -2,13 +2,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { PlanId, Profile, Task, Mission, MissionItem, MissionDetail, HouseholdInfo, HouseholdMemberInfo, AppNotification } from "./types";
 import { planLimits } from "./plan";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 type Ctx = { supabase: import("@supabase/supabase-js").SupabaseClient; userId: string };
 
 // ---------- Profile ----------
 
 export const getMe = createServerFn({ method: "GET" })
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }: { context: Ctx }) => {
     const { supabase, userId } = context;
     const [{ data: profile }, { data: sub }] = await Promise.all([
@@ -24,7 +25,7 @@ export const getMe = createServerFn({ method: "GET" })
 
 export const updateProfile = createServerFn({ method: "POST" })
   .inputValidator((input: { full_name?: string; avatar_url?: string | null; language?: string; timezone?: string; areas?: string[]; appearance?: string; notification_prefs?: Record<string, boolean> }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: Record<string, unknown>; context: Ctx }) => {
     const patch: Record<string, unknown> = {};
     const allowed = ["full_name", "avatar_url", "language", "timezone", "areas", "appearance", "notification_prefs"];
@@ -36,7 +37,7 @@ export const updateProfile = createServerFn({ method: "POST" })
 
 export const completeOnboarding = createServerFn({ method: "POST" })
   .inputValidator((input: { full_name?: string; language: string; timezone: string; areas: string[] }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { full_name?: string; language: string; timezone: string; areas: string[] }; context: Ctx }) => {
     const { error } = await context.supabase
       .from("profiles")
@@ -50,7 +51,7 @@ export const completeOnboarding = createServerFn({ method: "POST" })
 // ---------- Tasks ----------
 
 export const listTasks = createServerFn({ method: "GET" })
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }: { context: Ctx }): Promise<Task[]> => {
     const { data } = await context.supabase.from("tasks").select("*").order("due_date", { ascending: true, nullsFirst: false }).order("created_at", { ascending: false });
     return (data as unknown as Task[]) ?? [];
@@ -58,7 +59,7 @@ export const listTasks = createServerFn({ method: "GET" })
 
 export const createTask = createServerFn({ method: "POST" })
   .inputValidator((input: { title: string; description?: string; category?: string; due_date?: string | null; due_time?: string | null; priority?: string; reminder_at?: string | null; mission_id?: string | null; household_id?: string | null; assign_to?: string | null }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { title: string; description?: string; category?: string; due_date?: string | null; due_time?: string | null; priority?: string; reminder_at?: string | null; mission_id?: string | null; household_id?: string | null; assign_to?: string | null }; context: Ctx }) => {
     const title = data.title.trim();
     if (!title) return { error: "Give the task a title" };
@@ -93,7 +94,7 @@ export const createTask = createServerFn({ method: "POST" })
 
 export const updateTask = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; title?: string; description?: string; category?: string; due_date?: string | null; due_time?: string | null; priority?: string; reminder_at?: string | null; mission_id?: string | null; completed?: boolean; assign_to?: string | null }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id: string; [k: string]: unknown }; context: Ctx }) => {
     const { id, assign_to, ...rest } = data;
     const patch: Record<string, unknown> = { ...rest };
@@ -116,7 +117,7 @@ export const updateTask = createServerFn({ method: "POST" })
 
 export const deleteTask = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id: string }; context: Ctx }) => {
     const { error } = await context.supabase.from("tasks").delete().eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
@@ -125,7 +126,7 @@ export const deleteTask = createServerFn({ method: "POST" })
 // ---------- Missions ----------
 
 export const listMissions = createServerFn({ method: "GET" })
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }: { context: Ctx }): Promise<MissionDetail[]> => {
     const [{ data: missions }, { data: items }] = await Promise.all([
       context.supabase.from("missions").select("*").order("created_at", { ascending: false }),
@@ -142,7 +143,7 @@ export const listMissions = createServerFn({ method: "GET" })
 
 export const getMission = createServerFn({ method: "GET" })
   .inputValidator((input: { id: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id: string }; context: Ctx }): Promise<{ mission: MissionDetail | null }> => {
     const { data: m } = await context.supabase.from("missions").select("*").eq("id", data.id).maybeSingle();
     if (!m) return { mission: null };
@@ -162,7 +163,7 @@ export const getMission = createServerFn({ method: "GET" })
 
 export const createMission = createServerFn({ method: "POST" })
   .inputValidator((input: { title: string; description?: string; category?: string; priority?: string; start_date?: string | null; deadline?: string | null; notes?: string; checklist?: string[]; household_id?: string | null }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { title: string; description?: string; category?: string; priority?: string; start_date?: string | null; deadline?: string | null; notes?: string; checklist?: string[]; household_id?: string | null }; context: Ctx }) => {
     const title = data.title.trim();
     if (!title) return { error: "Give the mission a title" };
@@ -198,7 +199,7 @@ export const createMission = createServerFn({ method: "POST" })
 
 export const updateMission = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; title?: string; description?: string; category?: string; priority?: string; start_date?: string | null; deadline?: string | null; notes?: string; status?: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id: string; [k: string]: unknown }; context: Ctx }) => {
     const { id, ...rest } = data;
     if (rest.status === "completed" && data.status !== "completed") delete rest.status;
@@ -208,7 +209,7 @@ export const updateMission = createServerFn({ method: "POST" })
 
 export const setMissionStatus = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; status: string; confirm?: boolean }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id: string; status: string; confirm?: boolean }; context: Ctx }) => {
     if (data.status === "completed" && !data.confirm) return { error: "Missions are only completed after your confirmation." };
     const { error } = await context.supabase.from("missions").update({ status: data.status }).eq("id", data.id);
@@ -217,7 +218,7 @@ export const setMissionStatus = createServerFn({ method: "POST" })
 
 export const deleteMission = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id: string }; context: Ctx }) => {
     const { error } = await context.supabase.from("missions").delete().eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
@@ -225,7 +226,7 @@ export const deleteMission = createServerFn({ method: "POST" })
 
 export const addMissionItem = createServerFn({ method: "POST" })
   .inputValidator((input: { mission_id: string; title: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { mission_id: string; title: string }; context: Ctx }) => {
     const { data: maxRow } = await context.supabase.from("mission_items").select("sort_order").eq("mission_id", data.mission_id).order("sort_order", { ascending: false }).limit(1);
     const next = ((maxRow?.[0] as { sort_order?: number } | undefined)?.sort_order ?? -1) + 1;
@@ -235,7 +236,7 @@ export const addMissionItem = createServerFn({ method: "POST" })
 
 export const toggleMissionItem = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; completed: boolean }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id: string; completed: boolean }; context: Ctx }) => {
     const { error } = await context.supabase.from("mission_items").update({ completed: data.completed }).eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
@@ -243,7 +244,7 @@ export const toggleMissionItem = createServerFn({ method: "POST" })
 
 export const deleteMissionItem = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id: string }; context: Ctx }) => {
     const { error } = await context.supabase.from("mission_items").delete().eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
@@ -252,7 +253,7 @@ export const deleteMissionItem = createServerFn({ method: "POST" })
 // ---------- Household ----------
 
 export const getHousehold = createServerFn({ method: "GET" })
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }: { context: Ctx }): Promise<HouseholdInfo | null> => {
     const { userId, supabase } = context;
     const { data: memberRows } = await supabase.from("household_members").select("household_id").eq("user_id", userId);
@@ -281,7 +282,7 @@ export const getHousehold = createServerFn({ method: "GET" })
 
 export const createHousehold = createServerFn({ method: "POST" })
   .inputValidator((input: { name: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { name: string }; context: Ctx }) => {
     const name = data.name.trim();
     if (!name) return { error: "Name your household" };
@@ -296,7 +297,7 @@ export const createHousehold = createServerFn({ method: "POST" })
 
 export const joinHousehold = createServerFn({ method: "POST" })
   .inputValidator((input: { code: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { code: string }; context: Ctx }) => {
     const code = data.code.trim().toLowerCase();
     const { data: h } = await context.supabase.from("households").select("id").eq("invite_code", code).maybeSingle();
@@ -309,7 +310,7 @@ export const joinHousehold = createServerFn({ method: "POST" })
   });
 
 export const leaveHousehold = createServerFn({ method: "POST" })
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }: { context: Ctx }) => {
     const { error } = await context.supabase.from("household_members").delete().eq("user_id", context.userId);
     return error ? { error: error.message } : { ok: true };
@@ -317,7 +318,7 @@ export const leaveHousehold = createServerFn({ method: "POST" })
 
 export const removeHouseholdMember = createServerFn({ method: "POST" })
   .inputValidator((input: { member_id: string }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { member_id: string }; context: Ctx }) => {
     const { data: member } = await context.supabase.from("household_members").select("id, household_id").eq("id", data.member_id).maybeSingle();
     if (!member) return { error: "Member not found" };
@@ -330,7 +331,7 @@ export const removeHouseholdMember = createServerFn({ method: "POST" })
 // ---------- Notifications ----------
 
 export const listNotifications = createServerFn({ method: "GET" })
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }: { context: Ctx }): Promise<AppNotification[]> => {
     const { data } = await context.supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50);
     return (data as unknown as AppNotification[]) ?? [];
@@ -338,7 +339,7 @@ export const listNotifications = createServerFn({ method: "GET" })
 
 export const markNotificationRead = createServerFn({ method: "POST" })
   .inputValidator((input: { id?: string; all?: boolean }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { id?: string; all?: boolean }; context: Ctx }) => {
     const q = context.supabase.from("notifications").update({ read: true }).eq("user_id", context.userId);
     const { error } = data.all ? await q : await q.eq("id", data.id!);
@@ -349,7 +350,7 @@ export const markNotificationRead = createServerFn({ method: "POST" })
 
 export const changePlan = createServerFn({ method: "POST" })
   .inputValidator((input: { plan: PlanId }) => input)
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }: { data: { plan: PlanId }; context: Ctx }) => {
     if (!["free", "plus", "premium", "concierge"].includes(data.plan)) return { error: "Unknown plan" };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -360,7 +361,7 @@ export const changePlan = createServerFn({ method: "POST" })
 // ---------- Account deletion ----------
 
 export const deleteAccount = createServerFn({ method: "POST" })
-  .middleware([await import("@/integrations/supabase/auth-middleware").then((m) => m.requireSupabaseAuth)])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }: { context: Ctx }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.deleteUser(context.userId);
