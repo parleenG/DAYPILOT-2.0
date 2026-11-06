@@ -138,6 +138,7 @@ function greetingFor(name: string) {
 
 export function NotificationsBell() {
   const { data: notifications } = useSuspenseQuery(notificationsQuery);
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const markRead = useMutation({
     mutationFn: (input: { id?: string; all?: boolean }) => markNotificationRead(input),

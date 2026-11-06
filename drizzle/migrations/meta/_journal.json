@@ -8,6 +8,13 @@
       "when": 1793818877315,
       "tag": "0000_daypilot_core_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793948468505,
+      "tag": "0001_household_join_rpc",
+      "breakpoints": true
     }
   ]
 }

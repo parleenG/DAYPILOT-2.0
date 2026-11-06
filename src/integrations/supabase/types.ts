@@ -476,6 +476,7 @@ export type Database = {
       can_access_mission: { Args: { _mission: string }; Returns: boolean }
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
       is_household_member: { Args: { _household: string }; Returns: boolean }
+      join_household: { Args: { _code: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
