@@ -4,13 +4,12 @@ import type { PlanId, Profile, Task, Mission, MissionItem, MissionDetail, Househ
 import { planLimits } from "./plan";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-type Ctx = { supabase: import("@supabase/supabase-js").SupabaseClient; userId: string };
 
 // ---------- Profile ----------
 
 export const getMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }: { context: Ctx }) => {
+  .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const [{ data: profile }, { data: sub }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
@@ -26,7 +25,7 @@ export const getMe = createServerFn({ method: "GET" })
 export const updateProfile = createServerFn({ method: "POST" })
   .inputValidator((input: { full_name?: string; avatar_url?: string | null; language?: string; timezone?: string; areas?: string[]; appearance?: string; notification_prefs?: Record<string, boolean> }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: Record<string, unknown>; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const patch: Record<string, unknown> = {};
     const allowed = ["full_name", "avatar_url", "language", "timezone", "areas", "appearance", "notification_prefs"];
     for (const k of allowed) if (k in data) patch[k] = data[k];
@@ -38,7 +37,7 @@ export const updateProfile = createServerFn({ method: "POST" })
 export const completeOnboarding = createServerFn({ method: "POST" })
   .inputValidator((input: { full_name?: string; language: string; timezone: string; areas: string[] }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { full_name?: string; language: string; timezone: string; areas: string[] }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("profiles")
       .update({ full_name: data.full_name?.slice(0, 80), language: data.language, timezone: data.timezone, areas: data.areas.slice(0, 12), onboarding_completed: true })
@@ -52,7 +51,7 @@ export const completeOnboarding = createServerFn({ method: "POST" })
 
 export const listTasks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }: { context: Ctx }): Promise<Task[]> => {
+  .handler(async ({ context }): Promise<Task[]> => {
     const { data } = await context.supabase.from("tasks").select("*").order("due_date", { ascending: true, nullsFirst: false }).order("created_at", { ascending: false });
     return (data as unknown as Task[]) ?? [];
   });
@@ -60,7 +59,7 @@ export const listTasks = createServerFn({ method: "GET" })
 export const createTask = createServerFn({ method: "POST" })
   .inputValidator((input: { title: string; description?: string; category?: string; due_date?: string | null; due_time?: string | null; priority?: string; reminder_at?: string | null; mission_id?: string | null; household_id?: string | null; assign_to?: string | null }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { title: string; description?: string; category?: string; due_date?: string | null; due_time?: string | null; priority?: string; reminder_at?: string | null; mission_id?: string | null; household_id?: string | null; assign_to?: string | null }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const title = data.title.trim();
     if (!title) return { error: "Give the task a title" };
     const { data: created, error } = await context.supabase
@@ -95,7 +94,7 @@ export const createTask = createServerFn({ method: "POST" })
 export const updateTask = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; title?: string; description?: string; category?: string; due_date?: string | null; due_time?: string | null; priority?: string; reminder_at?: string | null; mission_id?: string | null; completed?: boolean; assign_to?: string | null }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id: string; [k: string]: unknown }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { id, assign_to, ...rest } = data;
     const patch: Record<string, unknown> = { ...rest };
     if (typeof data.completed === "boolean") patch.completed_at = data.completed ? new Date().toISOString() : null;
@@ -118,7 +117,7 @@ export const updateTask = createServerFn({ method: "POST" })
 export const deleteTask = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id: string }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("tasks").delete().eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
   });
@@ -127,7 +126,7 @@ export const deleteTask = createServerFn({ method: "POST" })
 
 export const listMissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }: { context: Ctx }): Promise<MissionDetail[]> => {
+  .handler(async ({ context }): Promise<MissionDetail[]> => {
     const [{ data: missions }, { data: items }] = await Promise.all([
       context.supabase.from("missions").select("*").order("created_at", { ascending: false }),
       context.supabase.from("mission_items").select("*").order("sort_order", { ascending: true }),
@@ -144,7 +143,7 @@ export const listMissions = createServerFn({ method: "GET" })
 export const getMission = createServerFn({ method: "GET" })
   .inputValidator((input: { id: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id: string }; context: Ctx }): Promise<{ mission: MissionDetail | null }> => {
+  .handler(async ({ data, context }): Promise<{ mission: MissionDetail | null }> => {
     const { data: m } = await context.supabase.from("missions").select("*").eq("id", data.id).maybeSingle();
     if (!m) return { mission: null };
     const { data: items } = await context.supabase.from("mission_items").select("*").eq("mission_id", data.id).order("sort_order", { ascending: true });
@@ -164,7 +163,7 @@ export const getMission = createServerFn({ method: "GET" })
 export const createMission = createServerFn({ method: "POST" })
   .inputValidator((input: { title: string; description?: string; category?: string; priority?: string; start_date?: string | null; deadline?: string | null; notes?: string; checklist?: string[]; household_id?: string | null }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { title: string; description?: string; category?: string; priority?: string; start_date?: string | null; deadline?: string | null; notes?: string; checklist?: string[]; household_id?: string | null }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const title = data.title.trim();
     if (!title) return { error: "Give the mission a title" };
     const { data: sub } = await context.supabase.from("subscriptions").select("plan").eq("user_id", context.userId).maybeSingle();
@@ -200,9 +199,9 @@ export const createMission = createServerFn({ method: "POST" })
 export const updateMission = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; title?: string; description?: string; category?: string; priority?: string; start_date?: string | null; deadline?: string | null; notes?: string; status?: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id: string; [k: string]: unknown }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
-    if (rest.status === "completed" && data.status !== "completed") delete rest.status;
+    if (rest.status === "completed") delete rest.status; // completion requires confirmation via setMissionStatus
     const { error } = await context.supabase.from("missions").update(rest).eq("id", id);
     return error ? { error: error.message } : { ok: true };
   });
@@ -210,7 +209,7 @@ export const updateMission = createServerFn({ method: "POST" })
 export const setMissionStatus = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; status: string; confirm?: boolean }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id: string; status: string; confirm?: boolean }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     if (data.status === "completed" && !data.confirm) return { error: "Missions are only completed after your confirmation." };
     const { error } = await context.supabase.from("missions").update({ status: data.status }).eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
@@ -219,7 +218,7 @@ export const setMissionStatus = createServerFn({ method: "POST" })
 export const deleteMission = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id: string }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("missions").delete().eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
   });
@@ -227,7 +226,7 @@ export const deleteMission = createServerFn({ method: "POST" })
 export const addMissionItem = createServerFn({ method: "POST" })
   .inputValidator((input: { mission_id: string; title: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { mission_id: string; title: string }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { data: maxRow } = await context.supabase.from("mission_items").select("sort_order").eq("mission_id", data.mission_id).order("sort_order", { ascending: false }).limit(1);
     const next = ((maxRow?.[0] as { sort_order?: number } | undefined)?.sort_order ?? -1) + 1;
     const { data: item, error } = await context.supabase.from("mission_items").insert({ mission_id: data.mission_id, title: data.title.trim().slice(0, 200), sort_order: next }).select("*").single();
@@ -237,7 +236,7 @@ export const addMissionItem = createServerFn({ method: "POST" })
 export const toggleMissionItem = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string; completed: boolean }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id: string; completed: boolean }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("mission_items").update({ completed: data.completed }).eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
   });
@@ -245,7 +244,7 @@ export const toggleMissionItem = createServerFn({ method: "POST" })
 export const deleteMissionItem = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id: string }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("mission_items").delete().eq("id", data.id);
     return error ? { error: error.message } : { ok: true };
   });
@@ -254,7 +253,7 @@ export const deleteMissionItem = createServerFn({ method: "POST" })
 
 export const getHousehold = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }: { context: Ctx }): Promise<HouseholdInfo | null> => {
+  .handler(async ({ context }): Promise<HouseholdInfo | null> => {
     const { userId, supabase } = context;
     const { data: memberRows } = await supabase.from("household_members").select("household_id").eq("user_id", userId);
     const householdId = memberRows?.[0]?.household_id as string | undefined;
@@ -283,7 +282,7 @@ export const getHousehold = createServerFn({ method: "GET" })
 export const createHousehold = createServerFn({ method: "POST" })
   .inputValidator((input: { name: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { name: string }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const name = data.name.trim();
     if (!name) return { error: "Name your household" };
     const { data: existing } = await context.supabase.from("household_members").select("household_id").eq("user_id", context.userId);
@@ -298,7 +297,7 @@ export const createHousehold = createServerFn({ method: "POST" })
 export const joinHousehold = createServerFn({ method: "POST" })
   .inputValidator((input: { code: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { code: string }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const code = data.code.trim().toLowerCase();
     const { data: h } = await context.supabase.from("households").select("id").eq("invite_code", code).maybeSingle();
     if (!h) return { error: "No household found with that invite code" };
@@ -311,7 +310,7 @@ export const joinHousehold = createServerFn({ method: "POST" })
 
 export const leaveHousehold = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }: { context: Ctx }) => {
+  .handler(async ({ context }) => {
     const { error } = await context.supabase.from("household_members").delete().eq("user_id", context.userId);
     return error ? { error: error.message } : { ok: true };
   });
@@ -319,7 +318,7 @@ export const leaveHousehold = createServerFn({ method: "POST" })
 export const removeHouseholdMember = createServerFn({ method: "POST" })
   .inputValidator((input: { member_id: string }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { member_id: string }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const { data: member } = await context.supabase.from("household_members").select("id, household_id").eq("id", data.member_id).maybeSingle();
     if (!member) return { error: "Member not found" };
     const { data: h } = await context.supabase.from("households").select("owner_id").eq("id", member.household_id).maybeSingle();
@@ -332,7 +331,7 @@ export const removeHouseholdMember = createServerFn({ method: "POST" })
 
 export const listNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }: { context: Ctx }): Promise<AppNotification[]> => {
+  .handler(async ({ context }): Promise<AppNotification[]> => {
     const { data } = await context.supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50);
     return (data as unknown as AppNotification[]) ?? [];
   });
@@ -340,7 +339,7 @@ export const listNotifications = createServerFn({ method: "GET" })
 export const markNotificationRead = createServerFn({ method: "POST" })
   .inputValidator((input: { id?: string; all?: boolean }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { id?: string; all?: boolean }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     const q = context.supabase.from("notifications").update({ read: true }).eq("user_id", context.userId);
     const { error } = data.all ? await q : await q.eq("id", data.id!);
     return error ? { error: error.message } : { ok: true };
@@ -351,8 +350,10 @@ export const markNotificationRead = createServerFn({ method: "POST" })
 export const changePlan = createServerFn({ method: "POST" })
   .inputValidator((input: { plan: PlanId }) => input)
   .middleware([requireSupabaseAuth])
-  .handler(async ({ data, context }: { data: { plan: PlanId }; context: Ctx }) => {
+  .handler(async ({ data, context }) => {
     if (!["free", "plus", "premium", "concierge"].includes(data.plan)) return { error: "Unknown plan" };
+    // Paid upgrades require a payment provider; never simulate a successful payment.
+    if (data.plan !== "free") return { error: "Payments aren't set up yet, so paid plans can't be purchased right now.", paymentsUnavailable: true };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("subscriptions").update({ plan: data.plan, status: "active", updated_at: new Date().toISOString() }).eq("user_id", context.userId);
     return error ? { error: error.message } : { ok: true };
@@ -362,7 +363,7 @@ export const changePlan = createServerFn({ method: "POST" })
 
 export const deleteAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }: { context: Ctx }) => {
+  .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.deleteUser(context.userId);
     return error ? { error: error.message } : { ok: true };
