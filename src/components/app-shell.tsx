@@ -5,15 +5,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bell, Check, Compass, Home, MessagesSquare, ScrollText, Users, LogOut, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getMe } from "@/lib/data.functions";
-import { listNotifications, markNotificationRead } from "@/lib/data.functions";
+import { markNotificationRead } from "@/lib/data.functions";
+import { meQuery, notificationsQuery } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { queryOptions } from "@tanstack/react-query";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const meQuery = queryOptions({ queryKey: ["me"], queryFn: () => getMe() });
-const notificationsQuery = queryOptions({ queryKey: ["notifications"], queryFn: () => listNotifications() });
 
 const NAV = [
   { to: "/dashboard", label: "Home", icon: Home },
@@ -141,7 +138,7 @@ export function NotificationsBell() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const markRead = useMutation({
-    mutationFn: (input: { id?: string; all?: boolean }) => markNotificationRead(input),
+    mutationFn: (input: { id?: string; all?: boolean }) => markNotificationRead({ data: input }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
   const unread = notifications.filter((n) => !n.read).length;
