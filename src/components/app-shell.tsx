@@ -5,15 +5,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bell, Check, Compass, Home, MessagesSquare, ScrollText, Users, LogOut, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getMe } from "@/lib/data.functions";
-import { listNotifications, markNotificationRead } from "@/lib/data.functions";
+import { markNotificationRead } from "@/lib/data.functions";
+import { meQuery, notificationsQuery } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { queryOptions } from "@tanstack/react-query";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const meQuery = queryOptions({ queryKey: ["me"], queryFn: () => getMe() });
-const notificationsQuery = queryOptions({ queryKey: ["notifications"], queryFn: () => listNotifications() });
 
 const NAV = [
   { to: "/dashboard", label: "Home", icon: Home },
@@ -88,7 +85,7 @@ export function AppShell() {
           <span className="font-display text-base font-semibold text-foreground">DayPilot</span>
         </Link>
         <div className="flex items-center gap-1">
-          <NotificationsBell firstName={firstName} />
+          <NotificationsBell />
         </div>
       </header>
 
@@ -101,7 +98,7 @@ export function AppShell() {
           <Link to="/tasks" className="tap mr-1 inline-flex h-9 items-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">
             <Plus className="h-4 w-4" /> Tasks & calendar
           </Link>
-          <NotificationsBell firstName={firstName} />
+          <NotificationsBell />
         </div>
       </div>
 
@@ -141,7 +138,7 @@ export function NotificationsBell() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const markRead = useMutation({
-    mutationFn: (input: { id?: string; all?: boolean }) => markNotificationRead(input),
+    mutationFn: (input: { id?: string; all?: boolean }) => markNotificationRead({ data: input }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
   });
   const unread = notifications.filter((n) => !n.read).length;

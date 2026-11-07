@@ -63,6 +63,7 @@ export interface MissionItem {
 export interface MissionDetail extends Mission {
   items: MissionItem[];
   progress: number;
+  tasks?: Task[];
 }
 
 export interface HouseholdInfo {
