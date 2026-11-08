@@ -15,9 +15,12 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedAppAssistantRouteImport } from './routes/_authenticated/_app/assistant'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
+import { Route as AuthenticatedAppHouseholdRouteImport } from './routes/_authenticated/_app/household'
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/_app/tasks'
 import { Route as AuthenticatedAppMissionsIndexRouteImport } from './routes/_authenticated/_app/missions.index'
+import { Route as AuthenticatedAppMissionsIdRouteImport } from './routes/_authenticated/_app/missions.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,10 +50,22 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppAssistantRoute =
+  AuthenticatedAppAssistantRouteImport.update({
+    id: '/assistant',
+    path: '/assistant',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
 const AuthenticatedAppDashboardRoute =
   AuthenticatedAppDashboardRouteImport.update({
     id: '/dashboard',
     path: '/dashboard',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppHouseholdRoute =
+  AuthenticatedAppHouseholdRouteImport.update({
+    id: '/household',
+    path: '/household',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
 const AuthenticatedAppTasksRoute = AuthenticatedAppTasksRouteImport.update({
@@ -64,14 +79,23 @@ const AuthenticatedAppMissionsIndexRoute =
     path: '/missions/',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
+const AuthenticatedAppMissionsIdRoute =
+  AuthenticatedAppMissionsIdRouteImport.update({
+    id: '/missions/$id',
+    path: '/missions/$id',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/assistant': typeof AuthenticatedAppAssistantRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/household': typeof AuthenticatedAppHouseholdRoute
   '/tasks': typeof AuthenticatedAppTasksRoute
+  '/missions/$id': typeof AuthenticatedAppMissionsIdRoute
   '/missions/': typeof AuthenticatedAppMissionsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -79,8 +103,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/assistant': typeof AuthenticatedAppAssistantRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/household': typeof AuthenticatedAppHouseholdRoute
   '/tasks': typeof AuthenticatedAppTasksRoute
+  '/missions/$id': typeof AuthenticatedAppMissionsIdRoute
   '/missions': typeof AuthenticatedAppMissionsIndexRoute
 }
 export interface FileRoutesById {
@@ -91,8 +118,11 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/_app/assistant': typeof AuthenticatedAppAssistantRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/_authenticated/_app/household': typeof AuthenticatedAppHouseholdRoute
   '/_authenticated/_app/tasks': typeof AuthenticatedAppTasksRoute
+  '/_authenticated/_app/missions/$id': typeof AuthenticatedAppMissionsIdRoute
   '/_authenticated/_app/missions/': typeof AuthenticatedAppMissionsIndexRoute
 }
 export interface FileRouteTypes {
@@ -102,8 +132,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/onboarding'
+    | '/assistant'
     | '/dashboard'
+    | '/household'
     | '/tasks'
+    | '/missions/$id'
     | '/missions/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -111,8 +144,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/onboarding'
+    | '/assistant'
     | '/dashboard'
+    | '/household'
     | '/tasks'
+    | '/missions/$id'
     | '/missions'
   id:
     | '__root__'
@@ -122,8 +158,11 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/_app'
     | '/_authenticated/onboarding'
+    | '/_authenticated/_app/assistant'
     | '/_authenticated/_app/dashboard'
+    | '/_authenticated/_app/household'
     | '/_authenticated/_app/tasks'
+    | '/_authenticated/_app/missions/$id'
     | '/_authenticated/_app/missions/'
   fileRoutesById: FileRoutesById
 }
@@ -178,11 +217,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/_app/assistant': {
+      id: '/_authenticated/_app/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AuthenticatedAppAssistantRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
     '/_authenticated/_app/dashboard': {
       id: '/_authenticated/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/household': {
+      id: '/_authenticated/_app/household'
+      path: '/household'
+      fullPath: '/household'
+      preLoaderRoute: typeof AuthenticatedAppHouseholdRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
     '/_authenticated/_app/tasks': {
@@ -199,18 +252,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppMissionsIndexRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
+    '/_authenticated/_app/missions/$id': {
+      id: '/_authenticated/_app/missions/$id'
+      path: '/missions/$id'
+      fullPath: '/missions/$id'
+      preLoaderRoute: typeof AuthenticatedAppMissionsIdRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteRouteChildren {
+  AuthenticatedAppAssistantRoute: typeof AuthenticatedAppAssistantRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
+  AuthenticatedAppHouseholdRoute: typeof AuthenticatedAppHouseholdRoute
   AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
+  AuthenticatedAppMissionsIdRoute: typeof AuthenticatedAppMissionsIdRoute
   AuthenticatedAppMissionsIndexRoute: typeof AuthenticatedAppMissionsIndexRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
+  AuthenticatedAppAssistantRoute: AuthenticatedAppAssistantRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
+  AuthenticatedAppHouseholdRoute: AuthenticatedAppHouseholdRoute,
   AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
+  AuthenticatedAppMissionsIdRoute: AuthenticatedAppMissionsIdRoute,
   AuthenticatedAppMissionsIndexRoute: AuthenticatedAppMissionsIndexRoute,
 }
 
