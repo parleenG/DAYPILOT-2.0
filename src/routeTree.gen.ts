@@ -12,12 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppAssistantRouteImport } from './routes/_authenticated/_app/assistant'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
 import { Route as AuthenticatedAppHouseholdRouteImport } from './routes/_authenticated/_app/household'
+import { Route as AuthenticatedAppNotificationsRouteImport } from './routes/_authenticated/_app/notifications'
+import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/_app/profile'
 import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/_app/tasks'
 import { Route as AuthenticatedAppMissionsIndexRouteImport } from './routes/_authenticated/_app/missions.index'
 import { Route as AuthenticatedAppMissionsIdRouteImport } from './routes/_authenticated/_app/missions.$id'
@@ -36,9 +41,24 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
@@ -68,6 +88,17 @@ const AuthenticatedAppHouseholdRoute =
     path: '/household',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
+const AuthenticatedAppNotificationsRoute =
+  AuthenticatedAppNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
 const AuthenticatedAppTasksRoute = AuthenticatedAppTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -89,11 +120,16 @@ const AuthenticatedAppMissionsIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/assistant': typeof AuthenticatedAppAssistantRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/household': typeof AuthenticatedAppHouseholdRoute
+  '/notifications': typeof AuthenticatedAppNotificationsRoute
+  '/profile': typeof AuthenticatedAppProfileRoute
   '/tasks': typeof AuthenticatedAppTasksRoute
   '/missions/$id': typeof AuthenticatedAppMissionsIdRoute
   '/missions/': typeof AuthenticatedAppMissionsIndexRoute
@@ -101,11 +137,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/assistant': typeof AuthenticatedAppAssistantRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/household': typeof AuthenticatedAppHouseholdRoute
+  '/notifications': typeof AuthenticatedAppNotificationsRoute
+  '/profile': typeof AuthenticatedAppProfileRoute
   '/tasks': typeof AuthenticatedAppTasksRoute
   '/missions/$id': typeof AuthenticatedAppMissionsIdRoute
   '/missions': typeof AuthenticatedAppMissionsIndexRoute
@@ -115,12 +156,17 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/_app/assistant': typeof AuthenticatedAppAssistantRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/household': typeof AuthenticatedAppHouseholdRoute
+  '/_authenticated/_app/notifications': typeof AuthenticatedAppNotificationsRoute
+  '/_authenticated/_app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/_app/tasks': typeof AuthenticatedAppTasksRoute
   '/_authenticated/_app/missions/$id': typeof AuthenticatedAppMissionsIdRoute
   '/_authenticated/_app/missions/': typeof AuthenticatedAppMissionsIndexRoute
@@ -130,11 +176,16 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/pricing'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/onboarding'
     | '/assistant'
     | '/dashboard'
     | '/household'
+    | '/notifications'
+    | '/profile'
     | '/tasks'
     | '/missions/$id'
     | '/missions/'
@@ -142,11 +193,16 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/pricing'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/onboarding'
     | '/assistant'
     | '/dashboard'
     | '/household'
+    | '/notifications'
+    | '/profile'
     | '/tasks'
     | '/missions/$id'
     | '/missions'
@@ -155,12 +211,17 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/pricing'
+    | '/privacy'
     | '/reset-password'
+    | '/terms'
     | '/_authenticated/_app'
     | '/_authenticated/onboarding'
     | '/_authenticated/_app/assistant'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/household'
+    | '/_authenticated/_app/notifications'
+    | '/_authenticated/_app/profile'
     | '/_authenticated/_app/tasks'
     | '/_authenticated/_app/missions/$id'
     | '/_authenticated/_app/missions/'
@@ -170,7 +231,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -196,11 +260,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_app': {
@@ -238,6 +323,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppHouseholdRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
+    '/_authenticated/_app/notifications': {
+      id: '/_authenticated/_app/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedAppNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/_app/profile': {
+      id: '/_authenticated/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
     '/_authenticated/_app/tasks': {
       id: '/_authenticated/_app/tasks'
       path: '/tasks'
@@ -266,6 +365,8 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppAssistantRoute: typeof AuthenticatedAppAssistantRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppHouseholdRoute: typeof AuthenticatedAppHouseholdRoute
+  AuthenticatedAppNotificationsRoute: typeof AuthenticatedAppNotificationsRoute
+  AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
   AuthenticatedAppMissionsIdRoute: typeof AuthenticatedAppMissionsIdRoute
   AuthenticatedAppMissionsIndexRoute: typeof AuthenticatedAppMissionsIndexRoute
@@ -275,6 +376,8 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppAssistantRoute: AuthenticatedAppAssistantRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppHouseholdRoute: AuthenticatedAppHouseholdRoute,
+  AuthenticatedAppNotificationsRoute: AuthenticatedAppNotificationsRoute,
+  AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
   AuthenticatedAppMissionsIdRoute: AuthenticatedAppMissionsIdRoute,
   AuthenticatedAppMissionsIndexRoute: AuthenticatedAppMissionsIndexRoute,
@@ -302,7 +405,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
