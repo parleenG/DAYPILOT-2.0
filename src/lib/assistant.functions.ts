@@ -20,7 +20,7 @@ export const getChat = createServerFn({ method: "GET" })
     ]);
     return {
       conversationId: conv.id,
-      messages: ((msgs ?? []) as unknown as ChatMessage[]) ?? [],
+      messages: (msgs ?? []) as unknown as ChatMessage[],
       usedToday: count ?? 0,
       aiDaily,
     };
@@ -93,7 +93,7 @@ export const sendChat = createServerFn({ method: "POST" })
       const { runAssistant } = await import("./assistant.server");
       const out = await runAssistant({ system, history: chatHistory, userText: text });
       reply = out.reply;
-      suggestions = { tasks: out.suggestions.tasks, mission: out.suggestions.mission };
+      suggestions = { tasks: out.suggestions.tasks as NonNullable<AssistantPayload["suggestions"]>["tasks"], mission: out.suggestions.mission };
     } catch {
       aiError = "The assistant service is unavailable right now. Please try again in a moment — your message was saved.";
     }
@@ -101,7 +101,7 @@ export const sendChat = createServerFn({ method: "POST" })
     const payload: AssistantPayload = { suggestions, used_ai: !aiError };
     const { data: msg, error: botErr } = await supabase
       .from("messages")
-      .insert({ conversation_id: conversationId, role: "assistant", content: reply || (aiError ?? ""), payload: payload as unknown as Record<string, unknown> })
+      .insert({ conversation_id: conversationId, role: "assistant", content: reply || (aiError ?? ""), payload: payload as never })
       .select("*")
       .single();
     if (botErr) return { error: botErr.message };
