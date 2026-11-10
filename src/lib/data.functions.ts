@@ -28,9 +28,9 @@ export const updateProfile = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const patch: Record<string, unknown> = {};
     const allowed = ["full_name", "avatar_url", "language", "timezone", "areas", "appearance", "notification_prefs"];
-    for (const k of allowed) if (k in data) patch[k] = data[k];
+    for (const k of allowed) if (k in data) patch[k] = (data as Record<string, unknown>)[k];
     if (Object.keys(patch).length === 0) return { error: "Nothing to update" };
-    const { error } = await context.supabase.from("profiles").update(patch).eq("id", context.userId);
+    const { error } = await context.supabase.from("profiles").update(patch as never).eq("id", context.userId);
     return error ? { error: error.message } : { ok: true };
   });
 
@@ -40,7 +40,7 @@ export const completeOnboarding = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("profiles")
-      .update({ full_name: data.full_name?.slice(0, 80), language: data.language, timezone: data.timezone, areas: data.areas.slice(0, 12), onboarding_completed: true })
+      .update({ full_name: data.full_name?.slice(0, 80) ?? null, language: data.language, timezone: data.timezone, areas: data.areas.slice(0, 12), onboarding_completed: true })
       .eq("id", context.userId);
     if (error) return { error: error.message };
     await context.supabase.from("consents").upsert({ user_id: context.userId, terms_version: "v1" }, { onConflict: "user_id" });
@@ -99,7 +99,7 @@ export const updateTask = createServerFn({ method: "POST" })
     const patch: Record<string, unknown> = { ...rest };
     if (typeof data.completed === "boolean") patch.completed_at = data.completed ? new Date().toISOString() : null;
     if (assign_to !== undefined) patch.user_id = assign_to;
-    const { error } = await context.supabase.from("tasks").update(patch).eq("id", id);
+    const { error } = await context.supabase.from("tasks").update(patch as never).eq("id", id);
     if (error) return { error: error.message };
     if (assign_to && assign_to !== context.userId) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -202,7 +202,7 @@ export const updateMission = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     if (rest.status === "completed") delete rest.status; // completion requires confirmation via setMissionStatus
-    const { error } = await context.supabase.from("missions").update(rest).eq("id", id);
+    const { error } = await context.supabase.from("missions").update(rest as never).eq("id", id);
     return error ? { error: error.message } : { ok: true };
   });
 

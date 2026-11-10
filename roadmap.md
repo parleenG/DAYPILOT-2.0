@@ -19,7 +19,8 @@ Tagline: "Your life, under control." Premium life-management SaaS per the pasted
 - Concierge human services are NOT advertised as available (no real service operation).
 - Payments: checkout structure ready for a provider, no simulated successful payments.
 
-## Open items (blocked on external config)
+## Open items
+- [ ] Signed-in end-to-end walkthrough (signup → onboarding → tasks/missions → assistant) not yet run in a test browser. (blocked on external config)
 - [ ] Live payment provider credentials (Stripe/Paddle) — checkout is structured, needs account.
 - [ ] Push notification delivery (web push / native) — preferences + data structure exist; needs platform config.
 - [ ] Professional legal review of privacy policy / ToS drafts.
